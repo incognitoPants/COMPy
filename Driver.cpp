@@ -27,7 +27,7 @@ int main () {
       for(int i = lbeg+1; i < lend; i++) {  //capture list contents into a string
             if(input.at(i) != ' ') {
               if (input.at(i) == ',') { //if comma found, store current list member to vector
-                list_content.insert(list_content.end(), listmem); //so it's always adding at the end, rather than front if using push_back
+                list_content.insert(list_content.end(), listmem); //stores to existing vector. Replace list_content with actual vector name
                 listmem = ""; //reset listmem to empty string
               }
               else {
