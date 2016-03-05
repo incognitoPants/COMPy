@@ -5,6 +5,9 @@
 using namespace std;
 
 int main () {
+  
+  
+//DISPLAY & INPUT REQUEST
   string input = " "; //Variable for capturing user input
   
   while (input.length() > 0) { //Continue loop as long as input is made
@@ -21,13 +24,16 @@ int main () {
         if(input.at(i) != ' ')
           varName.append(input,i,1);  //append each character to varName
       }
+      
       //find index of beginning and end of list markers
       size_t lbeg = input.find('[');
       size_t lend = input.find(']');
       for(int i = lbeg+1; i < lend; i++) {  //capture list contents into a string
             if(input.at(i) != ' ') {
               if (input.at(i) == ',') { //if comma found, store current list member to vector
-                list_content.insert(list_content.end(), listmem); //stores to existing vector. Replace list_content with actual vector name
+              //Replace list_content with actual vector name. Insert allows addition to list to occur at the end
+              
+                COMPy::list[varName] = list_content.insert(list_content.end(), listmem); 
                 listmem = ""; //reset listmem to empty string
               }
               else {
@@ -37,4 +43,29 @@ int main () {
       }
   }
   
+  
+  //Display function?
+  //if no assignment operator is found, display matching variable name
+  //1) Access Map
+  map<string, vector<string>>::iterator list_it;
+  
+  list_it = COMPy::list.find("input");
+  if (list_it != COMPy::list.end()) {
+    //2)Iterate INSIDE the vector to show all contents
+    cout << "[ ";
+    for(int i = 0; i < list_it.second.size(); i ++) {
+      cout << (*it).second[i];
+    }
+    cout << " ]";
+  }
+  
+  //Create a variable name if no matching key
+  if (list_it == list.end()) {
+  for (int i = 0; i < input.length(); i++) {
+    if(input.at(i) != ' ')
+          varName.append(input,i,1);  //append each character to varName
+  }
+  
+  }
+  }
 }
