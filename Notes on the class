@@ -7,6 +7,18 @@ Member Functions: Capture, Breakdown, Display, variable, */
 
 class COMPy
 {
+public:
+//Initialize map
 
+triggers
+//variable
+//capture/breakdown
+//display
+//destruction
+//add
+
+operators
+//copy constructor
+//assignment operator
 
 };
