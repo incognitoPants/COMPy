@@ -1,0 +1,109 @@
+//
+//  main.cpp
+//  PY
+//
+//  Created by Fernando Velazquez on 3/15/16.
+//  Copyright © 2016 Fernando Velazquez. All rights reserved.
+//
+
+#include <iostream>
+#include <string>
+#include <map>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+static void ToVar(string strg,map<string, vector<vector<string>>>& list);
+
+int main(int argc, const char * argv[]) {
+    
+    string trial1 = "x = [ 1, 2 , 3, 5]";
+    
+    map<string, vector<vector<string>>> list;
+    
+    ToVar(trial1, list);
+    
+    string x = "";
+    
+    cin >> x;
+    
+    cout << &list[x][0];
+    cout << &list[x][1];
+    cout << &list[x][2];
+    cout << &list[x][3];
+    
+    
+    
+    
+    return 0;
+}
+
+
+static void ToVar(string input,map<string, vector<vector<string>>>& list)
+{
+    string str1 = "";
+    string str2 = "";
+    
+    for(int i =0; i < input.find("="); i++)
+    {
+        if(input.at(i) != ' ')
+            str1.append(input,i,1);
+    }
+    
+    size_t lbeg = input.find('[');
+    size_t lend = input.find_last_of(']');
+    
+    string temp = "";
+    
+    for(int i = lbeg + 1; i < lend; i++)  //capture list contents into a string
+    {
+        int outterIndex = 0;
+        if(input.at(i) == '[')//first if would capture valued into a vector of values
+        {
+            while(input.at(i) != ']')
+            {
+                while(input.at(i) != ','  || input.at(i) != ']')
+                {
+                    temp.append(input,i,1);
+                    i++;
+                }
+                temp.erase(remove(temp.begin(),temp.end(), ' '));
+                list[str1][outterIndex].push_back(temp);
+                temp = "";
+                if(input.at(i) == ',')
+                    i++;
+            }
+            outterIndex++;
+        }
+        else if(input.at(i) == '"') // need to add for triple quotes
+        {
+            while(input.at(i) != '"')
+            {
+                temp.append(input,i,1);
+                i++;
+            }
+            //deals with temp
+            list[str1][outterIndex].push_back(temp);
+            temp ="";
+            
+            outterIndex++;
+            
+        }
+        else
+        {
+            while(input.at(i) != ',' || i <= lend)
+            {
+                temp.append(input,i,1);
+                i++;
+            }
+            //deals with temp
+            temp.erase(remove(temp.begin(),temp.end(), ' '));
+            list[str1][0].push_back(temp);
+            temp = "";
+            
+            outterIndex++;
+        }
+    }
+    
+}
