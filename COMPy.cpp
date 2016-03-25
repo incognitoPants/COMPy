@@ -7,7 +7,7 @@
 COMPy::COMPy() { }
 
 void COMPy::capture(std::string p_input) {
-	size_t stop = p_input.find('=');
+	int stop = p_input.find('=');
 	//if assignment operator is found, capture variable name and find list members
 	if (stop != std::string::npos) {
 		for (int i = 0; i < stop; i++) { //capture variable name
@@ -63,7 +63,7 @@ void COMPy::editList(std::string p_key, std::vector<std::string> p_list) {
 		m_list.erase(it);
 
 	//add key with new list
-	m_list.insert(m_list.end(), std::pair<std::string, std::vector<std::string> >(p_key, p_list);
+	m_list.insert(m_list.end(), std::pair<std::string, std::vector<std::string> >(p_key, p_list));
 }
 //adds a new key / variable
 void COMPy::addNew(std::string p_key) { 
