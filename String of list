@@ -1,0 +1,23 @@
+void COMPy::dictionary(std::string p_input, std::string varName) {
+
+		m_list2[varName];
+		std::string listmem = "";
+		std::string value = "";
+		size_t lbeg = p_input.find('{');
+		size_t lend = p_input.find('}');
+		if (lbeg != std::string::npos && lend != std::string::npos) {
+			int i = lbeg + 1;
+			while(i != lend)
+			{
+				while(p_input.at(i) == ' ')// removes all the spaces between "," and the begining of the key name
+				{
+					i++;
+				}
+				int temp_i = i;
+				for (int j = temp_i ; j < p_input.find(':', temp_i); j++, i++) {  //capture list contents into a std::string
+					listmem.append(p_input, i, 1);//check if a std::string or not a space
+				}
+
+			}
+		}
+	}
