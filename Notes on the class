@@ -5,7 +5,7 @@ Static Members: Map
 Member Functions: Capture, Breakdown, Display, variable, */
 
 
-class COMPy
+class COMPy_Variables
 {
 public:
 //Initialize map
