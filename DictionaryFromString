@@ -1,0 +1,99 @@
+#include <algorithm>
+#include <iostream>
+#include <string>
+#include <map>
+#include <vector>
+
+
+
+void dictionary(std::string p_input, std::string varName);
+
+void removeUnnecessarySpaces(std::string & str);
+
+
+
+
+std::map<std::string,std::map<std::string,std::string>> m_list2;
+int main()
+{
+    
+    dictionary("{1:1,2:2,3:3}", "str");
+    
+    std::cout << m_list2["str"]["3"];
+    
+    return 0;
+}
+
+
+
+
+
+void dictionary(std::string p_input, std::string varName) {
+    
+    m_list2[varName];
+    std::string listmem = "";
+    std::string value = "";
+    bool partOfString = false;
+    
+    
+    size_t lbeg = p_input.find('{');
+    size_t lend = p_input.find('}');
+    
+    if (lbeg != std::string::npos && lend != std::string::npos) {
+        int i = (int)lbeg + 1;
+        while(i < lend)
+        {
+            while(p_input.at(i) != ':' || partOfString)//looking and naming the keys
+            {
+                if(p_input.at(i) == '"')
+                {
+                    partOfString = !partOfString;
+                }
+                
+                listmem.append(p_input, i, 1);
+                i++;
+            }
+            i++;
+            removeUnnecessarySpaces(listmem);
+            
+            while((p_input.at(i) != ',' || partOfString) && i<lend)// looking and naming values
+            {
+                if(p_input.at(i) == '"')
+                {
+                    partOfString = !partOfString;
+                }
+                
+                value.append(p_input, i, 1);
+                i++;
+            }
+            i++;
+            
+            removeUnnecessarySpaces(value);
+            
+            
+            m_list2[varName][listmem] = value; //adding values to
+            
+            listmem ="";
+            value = "";
+            
+        }
+    }
+}
+
+
+void removeUnnecessarySpaces(std::string& str)
+{
+    while(str.at(0) == ' ')//removes all the begining spaces
+    {
+        str = str.substr(1);
+    }
+    
+    reverse(str.begin(),str.end());
+    
+    while(str.at(0) == ' ')//removes all the ending spaces
+    {
+        str = str.substr(1);
+    }
+    
+    reverse(str.begin(),str.end());
+}
