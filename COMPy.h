@@ -15,7 +15,7 @@ public:
 	void resetMember();
 	std::map<std::string, std::vector<std::string> > m_list;
 	std::map<std::string, std::vector<std::string> >::iterator it;
-	std::map<std::string, std::string> m_list2; //
+	std::map<std::string, std::map<std::string, std::string> > m_list2; //
 	std::vector<std::string> data;
 private:
 	std::string varName;
