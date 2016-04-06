@@ -1,0 +1,87 @@
+//This was the first edition of the display functions using the original capture method
+//What do you think?
+
+#include <iostream>
+#include "Maps.h"
+#include <list>
+#include <iterator>
+#include <string>
+#include <map>
+
+std::string[] COMPy_Maps::keys()
+{
+	int stop = p_input.find("list(");
+
+	if (stop < 0)
+	{
+		std::map<std::string, std::string>::iterator outIt = m_list2.begin.find(this->m_list);
+
+		std::cout << std::endl << "dict_values([";
+
+		while (outIt != this->m_list.end())
+		{
+			std::cout << outIt->first << ", ";
+		}
+		std::cout << "])" << std::endl;
+	}
+	else
+	{
+		std::map<std::string, std::string>::iterator outIt = m_list2.begin.find(this->m_list);
+
+		std::cout << std::endl << "[";
+
+		while (outIt != this->m_list.end())
+		{
+			std::cout << outIt->first << ", ";
+		}
+		std::cout << "]";
+	}
+}
+
+std::string[] COMPy_Maps::values()
+{
+	int stop = p_input.find("list(");
+
+	if (stop < 0)
+	{
+		std::map<std::string, std::string>::iterator outIt = m_list2.begin.find(this->m_list);
+
+		std::cout << std::endl << "dict_values([";
+
+		while (outIt != this->m_list.end())
+		{
+			std::cout << outIt->second << ", ";
+		}
+		std::cout << "])" << std::endl;
+	}
+
+}
+
+std::map<std::string, std::string>::iterator COMPy_Maps::items()
+{
+//Capture method
+		std::map<std::string, std::string>::iterator outIt = m_list2.begin.find(this->m_list);
+
+		std::cout << std::endl << "dict_items([";
+
+		while (outIt != this->m_list.end())
+		{
+			std::cout << "(" << outIt->first << ", " << outIt->second << "), ";
+		}
+		std::cout << "])" << std::endl;
+		
+		return outIt;
+}
+
+void COMPy_Maps::list(std::string dict)
+{
+	std::map<std::string, std::string>::iterator outIt = m_list2.begin.find(this->m_list);
+	
+	std::cout << std::endl << "[";
+
+	while (outIt != this->m_list.end())
+	{
+		std::cout << outIt->first << ", ";
+	}
+	std::cout << "]" << std::endl;
+}
