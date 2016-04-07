@@ -1,0 +1,79 @@
+void list(std::string p_input, std::string varName) {
+    
+    m_list[varName];
+    std::string listmem = "";
+    bool partOfString = false;
+    
+    
+    size_t lbeg = p_input.find('[');
+    size_t lend = p_input.find_last_of(']');
+    
+    if (lbeg != std::string::npos && lend != std::string::npos) {
+        int i = (int)lbeg + 1;
+        while(i <= lend)
+        {
+            while(i < (int)lend && (p_input.at(i) != ',' || partOfString))//looking for members of variable
+            {
+                if(p_input.at(i) == '\'')
+                {
+                    partOfString = !partOfString;
+                }
+                
+                listmem.append(p_input, i, 1);
+                i++;
+            }
+            i++;
+            removeUnnecessarySpaces(listmem);
+            
+            m_list[varName].push_back(listmem); //adding values to the list
+            
+            listmem ="";
+            
+        }
+    }
+}
+
+
+
+
+std::string displayString(std::string p_input)
+{
+    std::string str = "[ ";
+    std::string line = "";
+    std::string varName = "";
+    std::string firstIndexStr = "", lastIndexStr = "";
+    int firstIndex = 0, lastIndex = 0;
+    
+    
+    
+    for(int i = 0; i < p_input.length(); i++)//remove all spaces
+        if(p_input.at(i) != ' ')
+            line.append(p_input, i, 1);
+    
+    varName.append(line , 0 , line.find('['));//find the key value
+    
+    if((line.find(':') - line.find('[')) > 1)//find the first index
+        firstIndex = std::stoi(firstIndexStr.append(line, line.find('[')+1, line.find(':') - line.find('[')));
+    else
+        firstIndex = 0;
+    
+    
+    if((line.find(']') - line.find(':')) > 1)// find the last index
+        lastIndex = std::stoi(lastIndexStr.append(line, line.find(':')+1, line.find(']') - line.find(':')));
+    else
+        lastIndex = (int)m_list[varName].size()-1;
+    
+    
+    for(int i = firstIndex; i <= lastIndex; i++)// making needed list
+    {
+        str.append(m_list[varName].at(i));
+       
+        if(i != lastIndex)
+            str.append(" , ", 0, 3);
+        else
+            str.append(" ]", 2);
+    }
+    
+    
+    return str;
+}
