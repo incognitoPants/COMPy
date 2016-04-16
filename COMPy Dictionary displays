@@ -73,7 +73,7 @@ std::map<std::string, std::string>::iterator COMPy_Maps::items()
 		return outIt;
 }
 
-void COMPy_Maps::list(std::string dict)
+void COMPy_Maps::list(std::string[] dict)
 {
 	std::map<std::string, std::string>::iterator outIt = m_list2.begin.find(this->m_list);
 	
