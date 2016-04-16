@@ -1,0 +1,331 @@
+#include <algorithm>
+#include <iostream>
+#include <string>
+#include <map>
+#include <vector>
+
+
+std::string path(std::string p_input);
+
+std::string findVarName(std::string p_input);
+
+std::string findOtherInput(std::string p_input);
+
+void dictionary(std::string p_input, std::string varName);
+
+void removeUnnecessarySpaces(std::string & str);
+
+void list(std::string p_input, std::string varName);
+
+std::string displayString(std::string p_input);
+
+std::string displayAnIndex(std::string p_input);
+
+//variables
+
+static std::map<std::string,std::map<std::string,std::string>> m_list2;
+
+static std::map<std::string, std::vector<std::string>> m_list;
+
+int main()
+{
+    
+    dictionary("{1:1,2:2,3:3}", "str");
+    list("[1,['ss',5,5],'sds',44]", "str2");
+    
+    std::cout << m_list2["str"]["3"] << std::endl;
+    
+    std::cout << m_list["str2"][2] << std::endl;
+    
+    
+    
+    std::cout << displayString("str2[1:4]")<<std::endl;
+    
+    std::cout << findVarName("str2[1:4]")<<std::endl;
+    
+    std::cout << findOtherInput("string = fsdfasdfas") << std::endl;
+    
+    std::cout << displayAnIndex("str2[-1]");
+    
+    
+    return 0;
+}
+
+
+
+std::string findVarName(std::string p_input)// find variable name;
+{
+    std::string varName = "";
+    
+    if(p_input.find('=') != std::string::npos)
+    {
+        varName.append(p_input, 0 , p_input.find('='));
+        removeUnnecessarySpaces(varName);
+        return varName;
+    }
+    else if(p_input.find('[') != std::string::npos)
+    {
+        varName.append(p_input, 0 , p_input.find('['));
+        
+        while(varName.at(0) == ' ') //erase empty spaces before the valiable name.
+            varName.erase(0,1);
+        
+        return varName;
+    }
+    else
+        removeUnnecessarySpaces(p_input);
+        return p_input;
+    
+}
+
+std::string findOtherInput(std::string p_input)
+{
+    std::string value = "";
+    return value.append(p_input.begin() + p_input.find('=')+1, p_input.end());
+}
+
+
+
+void dictionary(std::string p_input, std::string varName) {
+    
+    m_list2[varName];
+    std::string listmem = "";
+    std::string value = "";
+    bool partOfString = false;
+    
+    
+    size_t lbeg = p_input.find('{');
+    size_t lend = p_input.find('}');
+    
+    if (lbeg != std::string::npos && lend != std::string::npos) {
+        int i = (int)lbeg + 1;
+        while(i < lend)
+        {
+            while(p_input.at(i) != ':' || partOfString)//looking and naming the keys
+            {
+                if(p_input.at(i) == '"')
+                {
+                    partOfString = !partOfString;
+                }
+                
+                listmem.append(p_input, i, 1);
+                i++;
+            }
+            i++;
+            removeUnnecessarySpaces(listmem);
+            
+            while((p_input.at(i) != ',' || partOfString) && i<lend)// looking and naming values
+            {
+                if(p_input.at(i) == '"')
+                {
+                    partOfString = !partOfString;
+                }
+                
+                value.append(p_input, i, 1);
+                i++;
+            }
+            i++;
+            
+            removeUnnecessarySpaces(value);
+            
+            
+            m_list2[varName][listmem] = value; //adding values to
+            
+            listmem ="";
+            value = "";
+            
+        }
+    }
+}
+
+
+void removeUnnecessarySpaces(std::string& str)
+{
+    while(str.at(0) == ' ')//removes all the begining spaces
+    {
+        str = str.substr(1);
+    }
+    
+    reverse(str.begin(),str.end());
+    
+    while(str.at(0) == ' ')//removes all the ending spaces
+    {
+        str = str.substr(1);
+    }
+    
+    reverse(str.begin(),str.end());
+}
+
+
+void list(std::string p_input, std::string varName) {
+    
+    m_list[varName];
+    std::string listmem = "";
+    bool partOfString = false;
+    bool partOfList = false;
+    
+    
+    size_t lbeg = p_input.find('[');
+    size_t lend = p_input.find_last_of(']');
+    
+    if (lbeg != std::string::npos && lend != std::string::npos) {
+        int i = (int)lbeg + 1;
+        while(i <= lend)
+        {
+            while(i < (int)lend && (p_input.at(i) != ',' || partOfString || partOfList))//looking for members of variable
+            {
+                if(p_input.at(i) == '\'')
+                {
+                    partOfString = !partOfString;
+                }
+                
+                if(p_input.at(i) == '[')
+                {
+                    partOfList = !partOfList;
+                }
+                
+                if(p_input.at(i) == ']')
+                {
+                    partOfList = !partOfList;
+                }
+                
+                listmem.append(p_input, i, 1);
+                
+                
+                i++;
+            }
+            i++;
+            removeUnnecessarySpaces(listmem);
+            
+            m_list[varName].push_back(listmem); //adding values to the list
+            
+            listmem ="";
+            
+        }
+    }
+}
+
+
+
+std::string displayAnIndex(std::string p_input)
+{
+    std::string varName = "";
+    std::string line = "";
+    std::string indexStr = "";
+    int index = 0;
+    
+    while(p_input.at(0) == ' ') //erase empty spaces before the valiable name.
+        p_input.erase(0,1);
+    
+    for(int i = 0; i < p_input.length(); i++)//remove all spaces
+        if(p_input.at(i) != ' ')
+            line.append(p_input, i, 1);
+    
+    varName.append(line , 0 , line.find('['));//find the key value
+    
+    index = std::stoi(indexStr.append(line, line.find('[')+1, line.find(']')));//find index from string
+    
+    if(index >=0)
+        return m_list[varName][index];
+    else
+        return m_list[varName][m_list[varName].size()+ index];
+}
+
+
+
+std::string displayString(std::string p_input)
+{
+    std::string str = "[ ";
+    std::string line = "";
+    std::string varName = "";
+    std::string firstIndexStr = "", lastIndexStr = "";
+    int firstIndex = 0, lastIndex = 0;
+    
+    while(p_input.at(0) == ' ') //erase empty spaces before the valiable name.
+        p_input.erase(0,1);
+        
+    for(int i = 0; i < p_input.length(); i++)//remove all spaces
+        if(p_input.at(i) != ' ')
+            line.append(p_input, i, 1);
+    
+    varName.append(line , 0 , line.find('['));//find the key value
+    
+    if((line.find(':') - line.find('[')) > 1)//find the first index
+        firstIndex = std::stoi(firstIndexStr.append(line, line.find('[')+1, line.find(':') - line.find('[')));
+    else
+        firstIndex = 0;
+    
+    
+    if((line.find(']') - line.find(':')) > 1)// find the last index
+        lastIndex = std::stoi(lastIndexStr.append(line, line.find(':')+1, line.find(']') - line.find(':')));
+    else
+        lastIndex = (int)m_list[varName].size();
+    
+    if(firstIndex > lastIndex)
+        return "[ ]";
+    
+    
+    for(int i = firstIndex; i < lastIndex; i++) // makes the outcome into a string
+    {
+        std::string temp = m_list[varName][i];
+        str.append(temp);
+       
+        if(i != lastIndex - 1)
+            str.append(" , ", 0, 3);
+        else
+            str.append(" ]", 2);
+    }
+    
+    
+    return str;
+}
+
+std::string path(std::string p_input)// checks what path is needed to come up with the disired outcome
+{
+    if (p_input.find('=') != std::string::npos)// check if something is being equated
+    {
+        if (p_input.find('[') != std::string::npos && m_list2.count(findVarName(p_input))==0)// check if its a list
+        {
+            if (m_list.count(findVarName(p_input))>0) {// checks if this varName exists
+                m_list.erase(findVarName(p_input));
+                list(findOtherInput(p_input), findVarName(p_input));
+            }
+            else
+                list(findOtherInput(p_input), findVarName(p_input));
+            return ""; // this and all the empty string returns in this method are seen as void.
+        }
+        else if (p_input.find('[') != std::string::npos && m_list2.count(findVarName(p_input))>0)// placing a new value from string
+        {
+            m_list2[findVarName(p_input)][std::to_string(m_list2[findVarName(p_input)].size())] = findOtherInput(p_input);
+        }
+        
+        else if (p_input.find('{') != std::string::npos) // check if its a dictionary
+        {
+            dictionary(findOtherInput(p_input), findVarName(p_input));
+            return "";
+        }
+        else // checks for something being quated
+        {
+            if(p_input.find('[') != std::string::npos)
+            {
+                return displayString(p_input);
+            }
+            else
+            {
+                if(m_list2.count(findVarName(p_input))>0)
+                {
+                    std::string tempVar = "{ ";
+                    for(int i = 0 ; i < m_list2[findVarName(p_input)].size(); i++)
+                    {
+                        tempVar.append(std::to_string(i));
+                        tempVar.append(" : ");
+                        tempVar.append(m_list2[findVarName(p_input)][std::to_string(i)]);
+                    }
+                    tempVar.append(" }");
+                    return tempVar; // i need to add the case where we are looking for only part of the dictionary, i think we might have methods for that. it might be part of Ethan's part
+                }
+            }
+        }
+    }
+    return "";
+}
