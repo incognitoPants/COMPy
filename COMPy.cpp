@@ -1,88 +1,132 @@
-#include <string>
-#include <map>
-#include <vector>
-#include <sstream>
 #include <iostream>
+#include <string>
+#include <vector>
+#include <map>
+#include <iterator>
+#include <algorithm>
 #include "COMPy.h"
-COMPy::COMPy() { }
+using namespace std;
 
+COMPy::COMPy() {}
 void COMPy::capture(std::string p_input) {
-	int stop = p_input.find('=');
-	//if assignment operator is found, capture variable name and find list members
-	if (stop != std::string::npos) {
-		for (int i = 0; i < stop; i++) { //capture variable name
-			if (p_input.at(i) != ' ')
-				varName.append(p_input, i, 1);  //append each character to varName
+	//Check if simple variable or a list
+	int finder = p_input.find('[');
+	if (finder != string::npos) {
+		int equal = p_input.find('=');
+		if (equal != string::npos)
+			addSimpleVar(p_input);
+		else {
+			list_it = m_list.find(p_input);
+			if (list_it != m_list.end())
+				displayList();
+			else
+				addSimpleVar(p_input);
 		}
-		size_t lbeg = p_input.find('[');
-		size_t lend = p_input.find(']');
-		if (lbeg != std::string::npos && lend != std::string::npos) {
-			for (int i = lbeg + 1; i < lend; i++) {  //capture list contents into a std::string
-				if (p_input.at(i) == ' ' && listmem.at(0) == '"') //check if a std::string or not a space
-					listmem.append(p_input, i, 1);
-				else if (p_input.at(i) != ' ') {
-					if (p_input.at(i) == ',') { //if comma found, store current list member to vector
-						addToMember(listmem); //Insert allows addition to list to occur at the end
-						listmem = ""; //reset listmem to empty std::string
-					}
-				}
+	}
+
+	//For Simple Variable
+	int equal = p_input.find('=');
+	if (equal != string::npos)
+		addSimpleVar(p_input);
+	else {
+		list_it = m_list.find(p_input);
+		if (list_it != m_list.end())
+			displayList();
+		else
+			addSimpleVar(p_input);
+	}
+}
+void COMPy::addSimpleVar(string p_input) {
+	int equal = p_input.find('=');
+	if (equal != string::npos) { //if assignment operator is found
+		varName = p_input.substr(0, equal);
+		varName.erase(remove_if(varName.begin(), varName.end(), isspace), varName.end());
+		listmem = p_input.substr(equal+1, string::npos);
+		if (listmem.at(0) != '\"' && listmem.at(listmem.size()-1) != '\"') //remove extra spaces if not a string
+			listmem.erase(remove_if(listmem.begin(), listmem.end(), isspace), listmem.end());
+
+		//Check if varName exists in map already
+		list_it = m_list.find(varName);
+		if (list_it != m_list.end())
+			eraseListKey();
+
+		rvec.push_back(listmem);
+		m_list.insert(pair<string, vector<string>>(varName, rvec));
+	}
+	//If no assignment operator assign key to empty vector in map
+	else {
+		varName = p_input;
+		varName.erase(remove_if(varName.begin(), varName.end(), isspace), varName.end());
+		m_list.insert(pair<string, vector<string>>(varName, rvec));
+	}
+
+	resetMembers();
+}
+void COMPy::addListVar(std::string p_input) {
+	//find assignment operator
+	int equal = p_input.find('=');
+	if (equal != string::npos) { //if assignment operator is found
+		varName = p_input.substr(0, equal);
+		//Remove extra spaces in left side
+		varName.erase(remove_if(varName.begin(), varName.end(), isspace), varName.end());
+		//Capture right hand side
+		string rside = p_input.substr((p_input.find('[') + 1), (p_input.find_last_of(']') - (p_input.find('[') + 1))); //find_last_of makes sure the end bracket location is captured
+
+		for (int i = 0; i < rside.length(); i++) {  //capture list contents into a std::string
+			if (rside.at(i) == '"') { //check if a std::string or not a space
+				int endQ = rside.find('"', i + 1);
+				listmem.append(rside, i, endQ);
+				i = endQ;
 			}
+			else if (rside.at(i) != ' ' && rside.at(i) != ',') {
+				listmem.append(rside, i, 1);
+			}
+			else if (rside.at(i) == ',') { //if comma found, store current list member to vector
+				rvec.push_back(listmem);
+				listmem = "";
+			}
+			//if .at(i) is the last character of string, add to to vector
+			if (i + 1 == rside.length())
+				rvec.push_back(listmem);
 		}
-		COMPy::it = m_list.find(varName);
-		if (it != m_list.end() && data.size() > 0) { //if existing match is found, edit existing function
-			editList(varName, data);
-			resetMember();
-		}
-		else if (it != m_list.end()) { //if found display
-			displayList(varName);
-		}
-		else {	//create a new key in map
-			addNew(varName);
-			resetMember();
-		}
-	}
-	else { //capture variable name and save in map
-		for (int i = 0; i < p_input.length(); i++) {
-			if (p_input.at(i) != ' ')
-				varName.append(p_input, i, 1);  //append each character to varName
-		}
-		addNew(varName);
-		resetMember();
-	}
-}
+		list_it = m_list.find(varName);
+		if (list_it != m_list.end())
+			m_list.erase(list_it);
 
-//add item to vector
-void COMPy::addToMember(std::string p_add) {
-	data.insert(data.end(), p_add);
-}
-//edits an existing key's member
-void COMPy::editList(std::string p_key, std::vector<std::string> p_list) { 
-	it = m_list.find(p_key);
-	//if key exists, erase contents to overwrite it
-	if(it != m_list.end())
-		m_list.erase(it);
-
-	//add key with new list
-	m_list.insert(m_list.end(), std::pair<std::string, std::vector<std::string> >(p_key, p_list));
-}
-//adds a new key / variable
-void COMPy::addNew(std::string p_key) { 
-	m_list[p_key] = data;
-}
-void COMPy::displayList(std::string p_key) {
-	auto list_it = m_list.find(p_key);
-	if (it != m_list.end()) {
-		std::cout << "[ ";
-		for (int i = 0; i < it->second.size(); i++)
-			std::cout << (*list_it).second[i];
-		std::cout << " ]";
+		m_list.insert(pair<string, vector<string>>(varName, rvec));
 	}
 	else {
-		std::cout << '\n';
+		varName = p_input;
+		varName.erase(remove_if(varName.begin(), varName.end(), isspace), varName.end());
+		m_list.insert(pair<string, vector<string>>(varName, rvec));
+	}
+	resetMembers();
+}
+void COMPy::displayList() {
+	cout << list_it->first << " = ";
+
+	//for simple variables
+	if (list_it->second.size() == 1) {
+	for (int i = 0; i < list_it->second.size(); i++)
+		cout << list_it->second[i] << " ";
+	cout << endl;
+	}
+	//for lists
+	else {
+		if (list_it != m_list.end()) {
+			cout << "[ ";
+			for (int i = 0; i < list_it->second.size(); i++)
+				cout << list_it->second[i] << " ";
+			cout << "]" << endl;
+		}
 	}
 }
-//Destroys all vector members and resets size to 0, reset varName
-void COMPy::resetMember() { 
+void COMPy::eraseListKey() {
+	m_list.erase(list_it);
+}
+void COMPy::addListItem(string p_input) {}
+void COMPy::resetMembers() {
+	rvec.clear();
 	varName = "";
-	data.clear();
+	listmem = "";
 }
