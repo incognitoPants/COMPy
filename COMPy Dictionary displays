@@ -1,6 +1,9 @@
 //This was the first edition of the display functions using the original capture method
 //What do you think?
 
+//E, can you try to see if you can make this work with the current version of the header and the COMPy.cpp?
+//m_list2 is map<string, map< string, string> >
+
 #include <iostream>
 #include "Maps.h"
 #include <list>
@@ -8,17 +11,18 @@
 #include <string>
 #include <map>
 
+//Is this for displaying the entire list? should probably be void unless you purposely want it to return a string array?
 std::string[] COMPy_Maps::keys()
 {
 	int stop = p_input.find("list(");
-
+	//if you do not find "list(" in input?
 	if (stop < 0)
-	{
-		std::map<std::string, std::string>::iterator outIt = m_list2.begin.find(this->m_list);
-
+	{	//m_list is the map for simple variables and lists. Are you trying to find the input / dictionary name?
+		std::map<std::string, std::string>::iterator outIt = m_list2.begin.find(this->m_list); //change to the map above or this to match project variable: map<std::string, std::map < std::string, std::string> > m_list2;
 		std::cout << std::endl << "dict_values([";
-
-		while (outIt != this->m_list.end())
+		
+		//if(outIt != m_list2.end()) //if statement better to run initial check
+		while (outIt != this->m_list.end()) //This is not iterating through the map contents. Infinite loop
 		{
 			std::cout << outIt->first << ", ";
 		}
