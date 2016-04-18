@@ -13,17 +13,21 @@ public:
 	void capture(std::string p_input);
 	void addSimpleVar(std::string p_input);
 	void addListVar(std::string p_input);
+	void dictionary(std::string p_input, std::string varName);
+	void removeUnnecessarySpaces(std::string & str);
 	void displayList();
 	void eraseListKey();
-	void addListItem(std::string p_input);
 	void resetMembers();
+	std::string findVarName(std::string p_input);
+	std::string COMPy::displayAnIndex(std::string p_input);
 private:
 	std::string varName = "";
 	std::string listmem = "";
 	std::vector<std::string> rvec;
 	std::map<std::string, std::vector<std::string> > m_list; //for simple variables and lists
-	std::map<std::string, std::vector<std::string> > m_list2;
+	std::map<std::string, std::map<std::string, std::string>> m_list2;
 	std::map<std::string, std::vector<std::string> >::iterator list_it;
 };
+
 
 //#endif
