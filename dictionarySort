@@ -1,0 +1,89 @@
+//Note: This assumes the user will not try to sort multiple dictionaries.
+//To do: make dictionary display function
+//bool sortCall = false;
+//	Determines whether or not a dictionary has been called to be sorted
+//string sortKey = "";
+//	Used to check if dictionary being called to display was asked to be sorted first
+//void displaySortedDict (string dict_name)
+//	This is to be trigerred inside capture[ if (dict_name == sortKey && sortCall == true) ]
+//	Displays dictionary keys in ascending order
+//	dict_name: The variable name of the dictionary to be sorted
+//void sortDictionary (string dict_name)
+//	sets sortCall flag to true and sortKey to varName
+//
+void displaySortedDict(string dict_name) {
+	list_it2 = m_list2.find(dict_name);
+	cout << "[ ";
+	while (list_it2 == list_it2) {	
+		for (auto inside_it = list_it2->second.begin(); inside_it != list_it2->second.end(); inside_it++) {
+			//Checks if this is the last item, so doesn't have a comma at the end
+			if (inside_it++ == list_it2->second.end() )
+				cout << inside_it.first << " ";
+			else
+			//All other items get a comma
+				cout << inside_it.first << ", ";
+		}
+	}
+	cout << " ]";
+
+	//reset sortKey and sortCall
+	sortKey = "";
+	sortCall = false;	
+}
+
+void sortDictionary (string dict_name) {
+	//find dict_name in dictionary map (m_list2)
+	list_it2 = m_list2.find(dict_name);
+
+	//if found set SortCall flag and SortKey
+	if (list_it2 != m_list2.end() ) {
+		//set sortCall flag to true
+		sortCall == true;
+
+		//set sortKey equal to dict_name
+		sortKey = dict_name;
+	}
+
+	//else, display an error?
+
+}
+
+
+//Additional logic for capture function
+void capture (string p_input) {
+
+
+ //Simple Variable & checking if varName exists in either map - Need to update actual .cpp file and test!
+ else {
+	if (p_input.find('=') != string::npos) 	{
+		//check is this is trying to sort a dictionary
+		if (p_input.find("sort(", (p_input.find('=')) ) != string::npos ) {
+			findVarName(p_input);
+			sortDictionary(varName);
+		}
+		
+		else
+      addSimpleVar(p_input);
+	}
+			
+        else {
+        findvarName(p_input)
+        list_it = m_list.find(varName);
+        list_it2 = m_list2.find(varName);
+            if (list_it != m_list.end())
+                displayList();
+	    else if (list_it2 != m_list2.end() ) { //item is found in dictionary list
+		    displayDictionary(); <-- //We need to make this function!
+	    }
+            else
+                addSimpleVar(p_input);
+        }
+
+	//somewhere in the dictionary section....
+	//findVarName(p_input); //Get variable name
+	//detect if rhs is requesting to sort dictionary
+	//if (p_input.find("sort(", (p_input.find('=')) ) != string::npos ) { //inner find returns the index position of '='
+	//sortDictionary(varName);					//This is where it will start looking for "sort("
+	//}
+
+}
