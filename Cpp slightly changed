@@ -1,0 +1,321 @@
+
+#include "ComPy.hpp"
+#include <iostream>
+#include <string>
+#include <vector>
+#include <map>
+#include <iterator>
+#include <algorithm>
+
+using namespace std;
+
+COMPy::COMPy() {}
+void COMPy::capture(std::string p_input) {
+    
+    //For List
+    if (p_input.find('[') != string::npos) {
+        int equal = p_input.find('=');
+        if (equal != string::npos)
+            addListVar(p_input);
+        else if (isdigit(p_input.at(p_input.find('[') + 1))) {
+            cout << displayAnIndex(p_input);
+        }
+        else {
+            list_it = m_list.find(p_input);
+            if (list_it != m_list.end())
+                displayList();
+            else
+                addListVar(p_input);
+        }
+    }
+    
+    //for dictionary
+    else if (p_input.find('{') != string::npos) {
+        int equal = p_input.find('=');
+        if (equal != string::npos)
+            dictionary(p_input, findVarName(p_input));
+        else {
+            list_it = m_list.find(p_input);
+            if (list_it != m_list.end())
+                displayList();
+            else
+                dictionary(p_input, findVarName(p_input));
+        }
+    }
+    
+    //For Simple Variable
+    else {
+        if (p_input.find('=') != string::npos)
+            addSimpleVar(p_input);
+        else {
+            list_it = m_list.find(p_input);
+            if (list_it != m_list.end())
+                displayList();
+            else
+                addSimpleVar(p_input);
+        }
+    }
+}
+void COMPy::addSimpleVar(std::string p_input) {
+    int equal = p_input.find('=');
+    if (equal != string::npos) { //if assignment operator is found
+        varName = p_input.substr(0, equal);
+        varName.erase(remove_if(varName.begin(), varName.end(), [](char x) { return isspace(x);}), varName.end());
+        listmem = p_input.substr(equal+1, string::npos);
+        if (listmem.at(0) != '\"' && listmem.at(listmem.size()-1) != '\"') //remove extra spaces if not a string
+        varName.erase(remove_if(varName.begin(), varName.end(), [](char x) { return isspace(x);}), varName.end());
+        //Check if varName exists in map already
+        list_it = m_list.find(varName);
+        if (list_it != m_list.end())
+            eraseListKey();
+        
+        rvec.push_back(listmem);
+        m_list.insert(pair<string, vector<string>>(varName, rvec));
+    }
+    //If no assignment operator assign key to empty vector in map
+    else {
+        varName = p_input;
+        varName.erase(remove_if(varName.begin(), varName.end(), [](char x) { return isspace(x);}), varName.end());
+        m_list.insert(pair<string, vector<string>>(varName, rvec));
+    }
+    
+    resetMembers();
+}
+void COMPy::addListVar(std::string p_input) {
+    //find assignment operator
+    int equal = p_input.find('=');
+    if (equal != string::npos) { //if assignment operator is found
+        varName = p_input.substr(0, equal);
+        //Remove extra spaces in left side
+        varName.erase(remove_if(varName.begin(), varName.end(), [](char x) { return isspace(x);}), varName.end());
+        //Capture right hand side
+        string rside = p_input.substr((p_input.find('[') + 1), (p_input.find_last_of(']') - (p_input.find('[') + 1))); //find_last_of makes sure the end bracket location is captured
+        
+        for (int i = 0; i < rside.length(); i++) {  //capture list contents into a std::string
+            if (rside.at(i) == '"') { //check if a std::string or not a space
+                int endQ = rside.find('"', i + 1);
+                listmem.append(rside, i, endQ);
+                i = endQ;
+            }
+            else if (rside.at(i) != ' ' && rside.at(i) != ',') {
+                listmem.append(rside, i, 1);
+            }
+            else if (rside.at(i) == ',') { //if comma found, store current list member to vector
+                rvec.push_back(listmem);
+                listmem = "";
+            }
+            //if .at(i) is the last character of string, add to to vector
+            if (i + 1 == rside.length())
+                rvec.push_back(listmem);
+        }
+        list_it = m_list.find(varName);
+        if (list_it != m_list.end())
+            m_list.erase(list_it);
+        
+        m_list.insert(pair<string, vector<string>>(varName, rvec));
+    }
+    else {
+        varName = p_input;
+        varName.erase(remove_if(varName.begin(), varName.end(), [](char x) { return isspace(x);}), varName.end());
+        m_list.insert(pair<string, vector<string>>(varName, rvec));
+    }
+    resetMembers();
+}
+
+
+void COMPy::displayList() {
+    cout << list_it->first << " = ";
+    
+    //for simple variables
+    if (list_it->second.size() == 1) {
+        for (int i = 0; i < list_it->second.size(); i++)
+            cout << list_it->second[i] << " ";
+        cout << endl;
+    }
+    //for lists
+    else {
+        if (list_it != m_list.end()) {
+            cout << "[ ";
+            for (int i = 0; i < list_it->second.size(); i++)
+                cout << list_it->second[i] << ", ";
+            cout << "]" << endl;
+        }
+    }
+}
+
+
+std::string COMPy::displayString(std::string p_input)
+{
+    std::string str = "[ ";
+    std::string line = "";
+    std::string varName = "";
+    std::string firstIndexStr = "", lastIndexStr = "";
+    int firstIndex = 0, lastIndex = 0;
+    
+    while(p_input.at(0) == ' ') //erase empty spaces before the valiable name.
+        p_input.erase(0,1);
+    
+    for(int i = 0; i < p_input.length(); i++)//remove all spaces
+        if(p_input.at(i) != ' ')
+            line.append(p_input, i, 1);
+    
+    varName.append(line , 0 , line.find('['));//find the key value
+    
+    if((line.find(':') - line.find('[')) > 1)//find the first index
+        firstIndex = std::stoi(firstIndexStr.append(line, line.find('[')+1, line.find(':') - line.find('[')));
+    else
+        firstIndex = 0;
+    
+    
+    if((line.find(']') - line.find(':')) > 1)// find the last index
+        lastIndex = std::stoi(lastIndexStr.append(line, line.find(':')+1, line.find(']') - line.find(':')));
+    else
+        lastIndex = (int) m_list[varName].size();
+    
+    if(firstIndex > lastIndex)
+        return "[ ]";
+    
+    
+    for(int i = firstIndex; i < lastIndex; i++) // makes the outcome into a string
+    {
+        std::string temp = m_list[varName][i];
+        str.append(temp);
+        
+        if(i != lastIndex - 1)
+            str.append(" , ", 0, 3);
+        else
+            str.append(" ]", 2);
+    }
+    
+    
+    return str;
+}
+void COMPy::eraseListKey() {
+    m_list.erase(list_it);
+}
+void COMPy::resetMembers() {
+    rvec.clear();
+    varName = "";
+    listmem = "";
+}
+
+void COMPy::dictionary(std::string p_input, std::string varName) {
+    
+    m_list2[varName];
+    std::string listmem = "";
+    std::string value = "";
+    bool partOfString = false;
+    
+    
+    size_t lbeg = p_input.find('{');
+    size_t lend = p_input.find('}');
+    
+    if (lbeg != std::string::npos && lend != std::string::npos) {
+        int i = (int)lbeg + 1;
+        while (i < lend)
+        {
+            while (p_input.at(i) != ':' || partOfString)//looking and naming the keys
+            {
+                if (p_input.at(i) == '"')
+                {
+                    partOfString = !partOfString;
+                }
+                
+                listmem.append(p_input, i, 1);
+                i++;
+            }
+            i++;
+            removeUnnecessarySpaces(listmem);
+            
+            while ((p_input.at(i) != ',' || partOfString) && i<lend)// looking and naming values
+            {
+                if (p_input.at(i) == '"')
+                {
+                    partOfString = !partOfString;
+                }
+                
+                value.append(p_input, i, 1);
+                i++;
+            }
+            i++;
+            
+            removeUnnecessarySpaces(value);
+            
+            m_list2[varName][listmem] = value; //adding values to
+            
+            listmem = "";
+            value = "";
+            
+        }
+    }
+    resetMembers();
+}
+
+void COMPy::removeUnnecessarySpaces(std::string& str)
+{
+    while (str.at(0) == ' ')//removes all the begining spaces
+    {
+        str = str.substr(1);
+    }
+    
+    reverse(str.begin(), str.end());
+    
+    while (str.at(0) == ' ')//removes all the ending spaces
+    {
+        str = str.substr(1);
+    }
+    
+    reverse(str.begin(), str.end());
+}
+
+std::string COMPy::findVarName(std::string p_input)// find variable name;
+{
+    std::string varName = "";
+    
+    if (p_input.find('=') != std::string::npos)
+    {
+        varName.append(p_input, 0, p_input.find('='));
+        removeUnnecessarySpaces(varName);
+        return varName;
+    }
+    else if (p_input.find('[') != std::string::npos)
+    {
+        varName.append(p_input, 0, p_input.find('['));
+        
+        while (varName.at(0) == ' ') //erase empty spaces before the valiable name.
+            varName.erase(0, 1);
+        
+        return varName;
+    }
+    else
+        removeUnnecessarySpaces(p_input);
+    return p_input;
+    
+}
+
+std::string COMPy::displayAnIndex(std::string p_input)
+{
+    std::string varName = "";
+    std::string line = "";
+    std::string indexStr = "";
+    int index = 0;
+    
+    while (p_input.at(0) == ' ') //erase empty spaces before the valiable name.
+        p_input.erase(0, 1);
+    
+    for (int i = 0; i < p_input.length(); i++)//remove all spaces
+        if (p_input.at(i) != ' ')
+            line.append(p_input, i, 1);
+    
+    varName.append(line, 0, line.find('['));//find the key value
+    
+    index = std::stoi(indexStr.append(line, line.find('[') + 1, line.find(']')));//find index from string
+    
+    cout << varName << '[' << index << "] = ";
+    
+    if (index >= 0)
+        return m_list[varName][index];
+    else
+        return m_list[varName][m_list[varName].size() + index];
+}
+
