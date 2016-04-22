@@ -1,0 +1,28 @@
+#include "ComPy.hpp"
+#include <iostream>
+#include <string>
+#include <vector>
+#include <map>
+#include <iterator>
+#include <algorithm>
+using namespace std;
+
+int main(int argc, const char * argv[]) {
+    
+    COMPy obj;
+    
+    obj.capture("x = [ 0,1,2]");
+    
+    
+    cout << obj.displayString("x");
+    
+    obj.capture("y = { 1:1,2:2}");
+    
+    
+    cout << obj.displayString("y");
+    
+
+
+    
+    return 0;
+}
