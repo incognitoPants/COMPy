@@ -1,0 +1,47 @@
+#ifndef COMPY_H
+#define COMPY_H
+#include <iostream>
+#include <map>
+#include <vector>
+#include <map>
+#include <iterator>
+#include <algorithm>
+
+class COMPy
+{
+public:
+    COMPy();
+    std::string capture(std::string p_input);
+    std::string addSimpleVar(std::string p_input);
+    std::string addListVar(std::string p_input);
+    std::string dictionary(std::string p_input, std::string varName);
+    void removeUnnecessarySpaces(std::string & str);
+    void displayList();
+    void eraseListKey();
+    void resetMembers();
+    
+    std::string isDictionaryPart(std::string p_input);
+    std::string isDictionaryWhole(std::string p_input);
+    std::string isList(std::string p_input);
+    std::string displayListValue(std::string p_input);
+    std::string displayDictionaryMethod(std::string p_input);
+    std::string displayValue(std::string p_input);
+    
+    std::string findVarName(std::string p_input);
+    std::string displayAnIndex(std::string p_input);
+    std::string list(std::string p_input, std::string varName);
+    
+    std::string keyRequest(std::string p_input);
+    std::string valueRequest(std::string p_input);
+    std::string itemRequest(std::string p_input);
+    std::string diplayDictionary(std::string p_input);
+private:
+
+    std::vector<std::string> rvec;
+    std::map<std::string, std::vector<std::string>> m_list; //for simple variables and lists
+    std::map<std::string, std::map<std::string, std::string>> m_list2;
+    std::map<std::string, std::vector<std::string> >::iterator list_it;
+    
+};
+
+#endif
